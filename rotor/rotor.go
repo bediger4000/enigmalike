@@ -52,6 +52,27 @@ func (r *Rotor) CipherFwd(inPos int, advance int, verbose bool) (outPos int, car
 	return outPos, carry
 }
 
+// CipherBkwd takes the input *position* (which is fixed in space,
+// figures out which rotor position that would match,
+// runs the input position through the rotor shuffling backwards,
+// and returns the output position
+func (r *Rotor) CipherBkwd(inPos int, verbose bool) (outPos int) {
+	// find index of this rotor that corresponds to inPos.
+	// Since r.Steps is how far "ahead" this rotor is of
+	// the 0 in position, the index calculated is which index
+	// on this rotor corresponds to inPos
+	internalPos := ((inPos + r.Steps) % 26) // LHS rotor contact
+
+	internalOutput := r.Inverse[internalPos] // RHS rotor contact
+
+	outPos = internalOutput - r.Steps
+	if outPos < 0 {
+		outPos += 26
+	}
+
+	return
+}
+
 /*
 Entry = ABCDEFGHIJKLMNOPQRSTUVWXYZ
         ||||||||||||||||||||||||||
@@ -64,6 +85,14 @@ var Rotor1 = &Rotor{
 		'N' - 'A', 'T' - 'A', 'O' - 'A', 'W' - 'A', 'Y' - 'A',
 		'H' - 'A', 'X' - 'A', 'U' - 'A', 'S' - 'A', 'P' - 'A',
 		'A' - 'A', 'I' - 'A', 'B' - 'A', 'R' - 'A', 'C' - 'A',
+		'J' - 'A',
+	},
+	Inverse: [26]int{
+		'U' - 'A', 'W' - 'A', 'Y' - 'A', 'G' - 'A', 'A' - 'A',
+		'D' - 'A', 'F' - 'A', 'P' - 'A', 'V' - 'A', 'Z' - 'A',
+		'B' - 'A', 'E' - 'A', 'C' - 'A', 'K' - 'A', 'M' - 'A',
+		'T' - 'A', 'H' - 'A', 'X' - 'A', 'S' - 'A', 'L' - 'A',
+		'R' - 'A', 'I' - 'A', 'N' - 'A', 'Q' - 'A', 'O' - 'A',
 		'J' - 'A',
 	},
 }
