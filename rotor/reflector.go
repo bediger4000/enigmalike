@@ -18,6 +18,7 @@ type Reflector struct {
 // Reflect from in position to out position
 func (r *Reflector) Reflect(inPos int) (outPos int) {
 	outPos = r.wiring[inPos]
+	return
 }
 
 var ReflectorB = &Reflector{
