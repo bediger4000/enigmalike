@@ -53,12 +53,26 @@ func main() {
 		// which is 0 for 'A', 1 for 'B', 2 for 'C', etc etc
 		outPos, carry := rotor.Rotor1.CipherFwd(int(unicode.ToUpper(r)-'A'), rotate, *verbose)
 
-		fout.AddLetter(rune(outPos + 'A'))
-
 		if *verbose {
-			fmt.Fprintf(os.Stderr, "output letter %c (%d), carry %d\n",
+			fmt.Fprintf(os.Stderr, "first rotor output letter %c (%d), carry %d\n",
 				(outPos + 'A'), outPos, carry)
 		}
+
+		outPos = rotor.ReflectorB.Reflect(outPos)
+
+		if *verbose {
+			fmt.Fprintf(os.Stderr, "reflector B output letter %c (%d)\n",
+				(outPos + 'A'), outPos)
+		}
+
+		outPos = rotor.Rotor1.CipherBkwd(outPos, *verbose)
+
+		if *verbose {
+			fmt.Fprintf(os.Stderr, "backward through first rotor output letter %c (%d)\n",
+				(outPos + 'A'), outPos)
+		}
+
+		fout.AddLetter(rune(outPos + 'A'))
 	}
 
 	fout.Output(os.Stdout)
