@@ -18,6 +18,7 @@ func main() {
 	first := flag.String("1", "I", "first rotor")
 	second := flag.String("2", "II", "second rotor")
 	third := flag.String("3", "III", "third rotor")
+	settings := flag.String("S", "AAA", "initial rotor settings")
 	flag.Parse()
 
 	var cleartext string
@@ -29,14 +30,20 @@ func main() {
 			cleartext = string(buffer)
 		}
 	} else {
+		// no input file, read a string from the command line
 		if flag.NArg() > 0 {
 			cleartext = flag.Arg(0)
 		}
 	}
 
+	// set up rotors
 	rotor1 := rotor.Rotors[*first]
 	rotor2 := rotor.Rotors[*second]
 	rotor3 := rotor.Rotors[*third]
+
+	rotor1.Steps = int((*settings)[0]) - 'A'
+	rotor2.Steps = int((*settings)[1]) - 'A'
+	rotor3.Steps = int((*settings)[2]) - 'A'
 
 	rotate := 0
 	if *advance {
