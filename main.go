@@ -13,9 +13,11 @@ import (
 
 func main() {
 	inFileName := flag.String("i", "", "input file name")
-	// step := flag.Bool("s", false, "show intermediate runes")
 	verbose := flag.Bool("v", false, "verbose output")
 	advance := flag.Bool("a", false, "advance first rotor")
+	first := flag.String("1", "I", "first rotor")
+	second := flag.String("2", "II", "second rotor")
+	third := flag.String("3", "III", "third rotor")
 	flag.Parse()
 
 	var cleartext string
@@ -31,6 +33,10 @@ func main() {
 			cleartext = flag.Arg(0)
 		}
 	}
+
+	rotor1 := rotor.Rotors[*first]
+	rotor2 := rotor.Rotors[*second]
+	rotor3 := rotor.Rotors[*third]
 
 	rotate := 0
 	if *advance {
@@ -51,10 +57,24 @@ func main() {
 
 		// Give the input letter to the first rotor as a contact position,
 		// which is 0 for 'A', 1 for 'B', 2 for 'C', etc etc
-		outPos, carry := rotor.Rotor1.CipherFwd(int(unicode.ToUpper(r)-'A'), rotate, *verbose)
+		outPos, carry := rotor1.CipherFwd(int(unicode.ToUpper(r)-'A'), rotate, *verbose)
 
 		if *verbose {
 			fmt.Fprintf(os.Stderr, "first rotor output letter %c (%d), carry %d\n",
+				(outPos + 'A'), outPos, carry)
+		}
+
+		outPos, carry = rotor2.CipherFwd(outPos, carry, *verbose)
+
+		if *verbose {
+			fmt.Fprintf(os.Stderr, "second rotor output letter %c (%d), carry %d\n",
+				(outPos + 'A'), outPos, carry)
+		}
+
+		outPos, carry = rotor3.CipherFwd(outPos, carry, *verbose)
+
+		if *verbose {
+			fmt.Fprintf(os.Stderr, "third rotor output letter %c (%d), carry %d\n",
 				(outPos + 'A'), outPos, carry)
 		}
 
@@ -65,7 +85,21 @@ func main() {
 				(outPos + 'A'), outPos)
 		}
 
-		outPos = rotor.Rotor1.CipherBkwd(outPos, *verbose)
+		outPos = rotor3.CipherBkwd(outPos, *verbose)
+
+		if *verbose {
+			fmt.Fprintf(os.Stderr, "backward through third rotor output letter %c (%d)\n",
+				(outPos + 'A'), outPos)
+		}
+
+		outPos = rotor2.CipherBkwd(outPos, *verbose)
+
+		if *verbose {
+			fmt.Fprintf(os.Stderr, "backward through second rotor output letter %c (%d)\n",
+				(outPos + 'A'), outPos)
+		}
+
+		outPos = rotor1.CipherBkwd(outPos, *verbose)
 
 		if *verbose {
 			fmt.Fprintf(os.Stderr, "backward through first rotor output letter %c (%d)\n",
