@@ -14,7 +14,7 @@ import (
 func main() {
 	inFileName := flag.String("i", "", "input file name")
 	verbose := flag.Bool("v", false, "verbose output")
-	advance := flag.Bool("a", false, "advance first rotor")
+	advance := flag.Bool("a", false, "don't advance first rotor")
 	first := flag.String("1", "I", "first rotor")
 	second := flag.String("2", "II", "second rotor")
 	third := flag.String("3", "III", "third rotor")
@@ -37,17 +37,50 @@ func main() {
 	}
 
 	// set up rotors
-	rotor1 := rotor.Rotors[*first]
-	rotor2 := rotor.Rotors[*second]
-	rotor3 := rotor.Rotors[*third]
+	var rotor1, rotor2, rotor3 *rotor.Rotor
+	var ok bool
 
-	rotor1.Steps = int((*settings)[0]) - 'A'
-	rotor2.Steps = int((*settings)[1]) - 'A'
-	rotor3.Steps = int((*settings)[2]) - 'A'
+	if rotor1, ok = rotor.Rotors[*first]; !ok {
+		log.Fatalf("no first rotor %q\n", *first)
+	}
+	if rotor2, ok = rotor.Rotors[*second]; !ok {
+		log.Fatalf("no second rotor %q\n", *second)
+	}
+	if rotor3, ok = rotor.Rotors[*third]; !ok {
+		log.Fatalf("no third rotor %q\n", *third)
+	}
 
-	rotate := 0
+	for i, letter := range *settings {
+		setting := int(unicode.ToUpper(letter))
+		if setting < 'A' || setting > 'Z' {
+			fmt.Fprintf(os.Stderr, "Ignoring bad setting %c\n", setting)
+			continue
+		}
+		setting -= 'A'
+		switch i {
+		case 0:
+			rotor1.Steps = setting
+			if *verbose {
+				fmt.Fprintf(os.Stderr, "rotor 1 (fast) setting %c\n", setting+'A')
+			}
+		case 1:
+			rotor2.Steps = setting
+			if *verbose {
+				fmt.Fprintf(os.Stderr, "rotor 2 (medium) setting %c\n", setting+'A')
+			}
+		case 2:
+			rotor3.Steps = setting
+			if *verbose {
+				fmt.Fprintf(os.Stderr, "rotor 3 (slow) setting %c\n", setting+'A')
+			}
+		default:
+			fmt.Fprintf(os.Stderr, "unused rotor %d  setting %c\n", i+1, setting+'A')
+		}
+	}
+
+	rotate := 1
 	if *advance {
-		rotate = 1
+		rotate = 0
 	}
 
 	fout := &TraditionalOutput{}
