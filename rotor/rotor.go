@@ -181,3 +181,15 @@ var Rotors = map[string]*Rotor{
 	"IV":  RotorIV,
 	"V":   RotorV,
 }
+
+// ChooseRotor returns a *copy* of a rotor it knows about,
+// otherwise nil
+func ChooseRotor(name string) *Rotor {
+	if model, ok := Rotors[name]; ok {
+		r := &Rotor{}
+		_ = copy(r.Encode[:], model.Encode[:])
+		_ = copy(r.Inverse[:], model.Inverse[:])
+		return r
+	}
+	return nil
+}

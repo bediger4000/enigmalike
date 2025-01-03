@@ -40,13 +40,13 @@ func main() {
 	var rotor1, rotor2, rotor3 *rotor.Rotor
 	var ok bool
 
-	if rotor1, ok = rotor.Rotors[*first]; !ok {
+	if rotor1 = rotor.ChooseRotor(*first); rotor1 == nil {
 		log.Fatalf("no first rotor %q\n", *first)
 	}
-	if rotor2, ok = rotor.Rotors[*second]; !ok {
+	if rotor2 = rotor.ChooseRotor(*second); rotor2 == nil {
 		log.Fatalf("no second rotor %q\n", *second)
 	}
-	if rotor3, ok = rotor.Rotors[*third]; !ok {
+	if rotor3 = rotor.ChooseRotor(*third); rotor3 == nil {
 		log.Fatalf("no third rotor %q\n", *third)
 	}
 
