@@ -38,7 +38,6 @@ func main() {
 
 	// set up rotors
 	var rotor1, rotor2, rotor3 *rotor.Rotor
-	var ok bool
 
 	if rotor1 = rotor.ChooseRotor(*first); rotor1 == nil {
 		log.Fatalf("no first rotor %q\n", *first)
