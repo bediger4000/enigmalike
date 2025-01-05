@@ -26,7 +26,7 @@ type Rotor struct {
 func (r *Rotor) CipherFwd(inPos int, advance int, verbose bool) (outPos int, carry int) {
 	r.Steps = ((r.Steps + advance) % 26)
 	if r.Steps == 0 {
-		// this rotor has been stepped 26 times, so carry to the next rotor left
+		// this rotor has been stepped 26 times, next rotor left should step
 		carry = 1
 	}
 
