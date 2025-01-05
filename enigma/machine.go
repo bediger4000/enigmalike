@@ -13,7 +13,8 @@ type Machine struct {
 	reflector *rotor.Reflector
 }
 
-func NewMachine(first, second, third string, settings string) *Machine {
+// NewMachine arranges 3 rotors ("first" is leftmost), but doesn't set them
+func NewMachine(first, second, third string) *Machine {
 	// set up rotors
 	var rotor1, rotor2, rotor3 *rotor.Rotor
 
@@ -30,31 +31,23 @@ func NewMachine(first, second, third string, settings string) *Machine {
 		return nil
 	}
 
-	for i, letter := range settings {
-		setting := int(unicode.ToUpper(letter))
-		if setting < 'A' || setting > 'Z' {
-			log.Printf("Ignoring bad setting %c\n", setting)
-			continue
-		}
-		setting -= 'A'
-		switch i {
-		case 0:
-			rotor1.Steps = setting
-		case 1:
-			rotor2.Steps = setting
-		case 2:
-			rotor3.Steps = setting
-		default:
-			log.Printf("unused rotor %d  setting %c\n", i+1, setting+'A')
-		}
-	}
-
 	return &Machine{
 		rotor1:    rotor1,
 		rotor2:    rotor2,
 		rotor3:    rotor3,
 		reflector: rotor.ReflectorB,
 	}
+}
+
+func (m *Machine) EncryptBuffer(text []rune) []rune {
+	var output []rune
+	for _, letter := range text {
+		if letter < 'A' || letter > 'Z' {
+			continue
+		}
+		output = append(output, m.EncryptLetter(letter))
+	}
+	return output
 }
 
 func (m *Machine) EncryptLetter(inLetter rune) rune {
@@ -72,4 +65,35 @@ func (m *Machine) EncryptLetter(inLetter rune) rune {
 	outPos = m.rotor1.CipherBkwd(outPos, false)
 
 	return rune(outPos + 'A')
+}
+
+// SetRotors metaphorically turns the target enigma.Machine's
+// rotor representations to the first three letters of the settings argument.
+// The settings variable should be at least 3 letters long, [A-Z].
+func (m *Machine) SetRotors(settings string) {
+
+	// Reset rotors to 0 position, just in case settings formal argument
+	// has a rune that doesn't fit.
+	m.rotor1.Steps = 0
+	m.rotor2.Steps = 0
+	m.rotor3.Steps = 0
+
+	for i, letter := range settings {
+		setting := int(unicode.ToUpper(letter))
+		if setting < 'A' || setting > 'Z' {
+			log.Printf("Ignoring bad setting %c\n", setting)
+			continue
+		}
+		setting -= 'A'
+		switch i {
+		case 0:
+			m.rotor1.Steps = setting
+		case 1:
+			m.rotor2.Steps = setting
+		case 2:
+			m.rotor3.Steps = setting
+		default:
+			log.Printf("unused rotor %d  setting %c\n", i+1, setting+'A')
+		}
+	}
 }
