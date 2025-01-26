@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -14,6 +15,7 @@ func main() {
 	second := flag.String("2", "II", "second rotor")
 	third := flag.String("3", "III", "third rotor")
 	settings := flag.String("S", "AAA", "initial rotor settings")
+	plugs := flag.String("P", "", "comma-separated plugboard settings")
 	flag.Parse()
 
 	var cleartext string
@@ -33,6 +35,11 @@ func main() {
 
 	machine := enigma.NewMachine(*first, *second, *third)
 	machine.SetRotors(*settings)
+
+	if len(*plugs) > 0 {
+		swaps := strings.Split(*plugs, ",")
+		machine.Plugboard(swaps...)
+	}
 
 	for _, letter := range cleartext {
 		if letter < 'A' || letter > 'Z' {

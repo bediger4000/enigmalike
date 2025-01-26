@@ -11,6 +11,7 @@ type Machine struct {
 	rotor2    *rotor.Rotor
 	rotor3    *rotor.Rotor
 	reflector *rotor.Reflector
+	plugBoard [26]int
 }
 
 // NewMachine arranges 3 rotors ("first" is leftmost), but doesn't set them
@@ -31,12 +32,18 @@ func NewMachine(first, second, third string) *Machine {
 		return nil
 	}
 
-	return &Machine{
+	m := &Machine{
 		rotor1:    rotor1,
 		rotor2:    rotor2,
 		rotor3:    rotor3,
 		reflector: rotor.ReflectorB,
 	}
+
+	for i := range m.plugBoard {
+		m.plugBoard[i] = i
+	}
+
+	return m
 }
 
 func (m *Machine) EncryptBuffer(text []rune) []rune {
@@ -52,9 +59,13 @@ func (m *Machine) EncryptBuffer(text []rune) []rune {
 
 func (m *Machine) EncryptLetter(inLetter rune) rune {
 
+	// Through the plugboard
+	outPos := m.plugBoard[int(unicode.ToUpper(inLetter)-'A')]
+	var carry int
+
 	// Give the input letter to the first rotor as a contact position,
 	// which is 0 for 'A', 1 for 'B', 2 for 'C', etc etc
-	outPos, carry := m.rotor1.CipherFwd(int(unicode.ToUpper(inLetter)-'A'), 1, false)
+	outPos, carry = m.rotor1.CipherFwd(outPos, 1, false)
 	outPos, carry = m.rotor2.CipherFwd(outPos, carry, false)
 	outPos, carry = m.rotor3.CipherFwd(outPos, carry, false)
 
@@ -64,7 +75,27 @@ func (m *Machine) EncryptLetter(inLetter rune) rune {
 	outPos = m.rotor2.CipherBkwd(outPos, false)
 	outPos = m.rotor1.CipherBkwd(outPos, false)
 
+	// Back through the plugboard
+	outPos = m.plugBoard[outPos]
+
 	return rune(outPos + 'A')
+}
+
+func (m *Machine) Plugboard(swaps ...string) {
+
+	for i := range m.plugBoard {
+		m.plugBoard[i] = i
+	}
+
+	for _, swap := range swaps {
+		if len(swap) != 2 {
+			continue
+		}
+		m.plugBoard[unicode.ToUpper(rune(swap[0]))-'A'] =
+			int(unicode.ToUpper(rune(swap[1])) - 'A')
+		m.plugBoard[unicode.ToUpper(rune(swap[1]))-'A'] =
+			int(unicode.ToUpper(rune(swap[0])) - 'A')
+	}
 }
 
 // SetRotors metaphorically turns the target enigma.Machine's
