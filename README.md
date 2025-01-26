@@ -78,7 +78,7 @@ contact on the right hand side of the rotor gets energized.
 That means the 'K' (or maybe 'J') contact on the left hand side
 of the rotor carries current through to the middle rotor.
 
-Keeping track of this is difficult to keep in your head.
+Keeping track of this is difficult to hold in your head.
 My rotor emulation code does everything in terms of numerical positions.
 It figures out which letter is in the input position,
 which letter the emulated wiring would energize,
