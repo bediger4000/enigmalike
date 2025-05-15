@@ -83,3 +83,5 @@ My rotor emulation code does everything in terms of numerical positions.
 It figures out which letter is in the input position,
 which letter the emulated wiring would energize,
 then determines the output position of that energized letter.
+
+## Cryptanalysis
