@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"unicode"
 )
 
 func main() {
@@ -42,6 +43,13 @@ func main() {
 	}
 
 	for _, letter := range cleartext {
+
+		if !unicode.IsLetter(letter) {
+			continue
+		}
+
+		letter = unicode.ToUpper(letter)
+
 		if letter < 'A' || letter > 'Z' {
 			continue
 		}
